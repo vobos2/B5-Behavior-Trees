@@ -4,21 +4,14 @@ using UnityEngine;
 using TreeSharpPlus;
 using RootMotion.FinalIK;
 
-public class IKBT : MonoBehaviour
+public class NonIK : MonoBehaviour
 {
-    public Transform wander1;
-    /*  public Transform wander2;
-      public Transform wander3;*/
     public GameObject participant;
     public GameObject participant2;
 
     //IK related interface
-    public GameObject button;
-    public InteractionObject ikButton;
-    public FullBodyBipedEffector hand;
+    public FullBodyBipedEffector foot;
 
-    public GameObject door;
-    public bool isUp;
     private BehaviorAgent behaviorAgent;
     // Use this for initialization
     void Start()
@@ -26,7 +19,6 @@ public class IKBT : MonoBehaviour
         behaviorAgent = new BehaviorAgent(this.BuildTreeRoot());
         BehaviorManager.Instance.Register(behaviorAgent);
         behaviorAgent.StartBehavior();
-        isUp = false;
     }
 
     #region Ball Affordance
@@ -83,44 +75,29 @@ public class IKBT : MonoBehaviour
             return RunStatus.Success;
         }*/
     #endregion
-    #region Door Affordance
-    public Node PressButton(GameObject p)
+    public Node Kick(GameObject p, GameObject p2)
     {
         return new Sequence(
-                            p.GetComponent<BehaviorMecanim>().Node_StartInteraction(hand, ikButton),
-                            Node_TriggerDoor(),
-                            new LeafWait(1000),
-                            p.GetComponent<BehaviorMecanim>().Node_StopInteraction(hand));
+                                p2.GetComponent<BehaviorMecanim>().Node_BodyAnimation("DUCK", true),
+                                p.GetComponent<BehaviorMecanim>().Node_BodyAnimation("FIGHT", true),
+                                new LeafWait(1000),
+                                new Sequence(
+                                p2.GetComponent<BehaviorMecanim>().Node_BodyAnimation("DUCK", false),
+                                 p2.GetComponent<BehaviorMecanim>().Node_BodyAnimation("DYING", true)
+                                ),
+                                p.GetComponent<BehaviorMecanim>().Node_BodyAnimation("FIGHT", false)
+                            );
     }
-    public Node Node_TriggerDoor()
+    public Node Node_KickTarget(GameObject p)
     {
-
-        return new LeafInvoke(() => this.triggerDoor());
+        return new LeafInvoke(() => this.KickTarget(p));
     }
-    public virtual RunStatus triggerDoor()
+    public virtual RunStatus KickTarget(GameObject p)
     {
-        DynamicWallAnimation animate = door.GetComponent<DynamicWallAnimation>();
-
-        animate.triggerDoor();
 
         return RunStatus.Success;
     }
-    /*    public virtual RunStatus DoorDown()
-        {
-            DynamicWallAnimation animate = door.GetComponent<DynamicWallAnimation>();
-            animate.goDown();
-            Val.V(() => isUp = false);
-            return RunStatus.Success;
-        }*/
-    #endregion
 
-    /*    protected Node PutDown(GameObject p)
-        {
-            return new Sequence(p.GetComponent<BehaviorMecanim>().Node_StartInteraction(hand, ikBall),
-                                new LeafWait(300),
-                                this.Node_BallMotion(),
-                                new LeafWait(500), p.GetComponent<BehaviorMecanim>().Node_StopInteraction(hand));
-        }*/
     protected Node ST_TurnTo(GameObject agent1, GameObject agent2)
     {
 
@@ -129,21 +106,22 @@ public class IKBT : MonoBehaviour
 
 
 
-    protected Node ST_ApproachAndWait(Transform target)
+    protected Node ST_ApproachAndWait(GameObject p, GameObject target)
     {
-        Val<Vector3> position = Val.V(() => target.position);
-        return new Sequence(participant.GetComponent<BehaviorMecanim>().Node_GoTo(position), new LeafWait(1000));
+        Val<Vector3> positionGoal = Val.V(() => target.transform.position);
+        Val<Vector3> positionP = Val.V(() => p.transform.position);
+        return new Sequence(p.GetComponent<BehaviorMecanim>().Node_GoToUpToRadius(positionGoal, 2f), new LeafWait(1000), target.GetComponent<BehaviorMecanim>().ST_TurnToFace(positionP));
     }
 
     protected Node BuildTreeRoot()
     {
         Node roaming = new Sequence(
-                        this.ST_ApproachAndWait(this.wander1),
+                        this.ST_ApproachAndWait(participant, participant2),
                            /* new DecoratorLoop(
                                 new Sequence(this.PickUp(participant), this.Throw(participant, participant2)))
                             );*/
                            new DecoratorLoop(
-                                new Sequence(this.PressButton(participant), new LeafWait(2000))));
+                                new Sequence(this.Kick(participant, participant2), new LeafWait(2000))));
         //new Sequence(this.PickUp(participant), this.Throw(participant, participant2)));
         return roaming;
     }

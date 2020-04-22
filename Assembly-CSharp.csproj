@@ -231,10 +231,11 @@
     <Compile Include="Assets\Core\Scripts\Util\ReflectionUtil.cs" />
     <Compile Include="Assets\Core\Scripts\Util\Token.cs" />
     <Compile Include="Assets\Core\Scripts\Util\Tuple.cs" />
+    <Compile Include="Assets\DoorIK.cs" />
     <Compile Include="Assets\DynamicWallAnimation.cs" />
-    <Compile Include="Assets\IKBT.cs" />
     <Compile Include="Assets\MyBehaviorTree.cs" />
     <Compile Include="Assets\MyBehaviorTree2.cs" />
+    <Compile Include="Assets\NonIK.cs" />
     <Reference Include="Unity.Timeline.Editor">
       <HintPath>C:/Users/Alex/Documents/UnityProjects/B5 - Behavior Trees/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
     </Reference>

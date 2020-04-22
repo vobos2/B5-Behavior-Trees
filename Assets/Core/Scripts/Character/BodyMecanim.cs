@@ -171,39 +171,39 @@ public class BodyMecanim : MonoBehaviour
 
         switch (gestureName.ToUpper())
         {
-            case "DRINK": 
-                this.animator.SetBool("F_Drink", isActive); 
+            case "DRINK":
+                this.animator.SetBool("F_Drink", isActive);
                 break;
-            case "EAT": 
-                this.animator.SetBool("F_Eat", isActive); 
+            case "EAT":
+                this.animator.SetBool("F_Eat", isActive);
                 break;
-            case "SPEW": 
-                this.animator.SetBool("F_Spew", isActive); 
+            case "SPEW":
+                this.animator.SetBool("F_Spew", isActive);
                 break;
-            case "ROAR": 
-                this.animator.SetBool("F_Roar", isActive); 
+            case "ROAR":
+                this.animator.SetBool("F_Roar", isActive);
                 break;
-            case "SAD": 
-                this.animator.SetBool("F_Sad", isActive); 
+            case "SAD":
+                this.animator.SetBool("F_Sad", isActive);
                 break;
-            case "FIREBREATH": 
-				this.animator.SetBool("F_FireBreath", isActive); 
+            case "FIREBREATH":
+                this.animator.SetBool("F_FireBreath", isActive);
                 break;
-			case "ACKNOWLEDGE": 
-				this.animator.SetBool("F_Acknowledge", isActive); 
-				break;
-			case "HEADNOD": 
-				this.animator.SetBool("F_HeadNod", isActive); 
-				break;
-			case "LOOKAWAY": 
-				this.animator.SetBool("F_LookAway", isActive); 
-				break;
-			case "HEADSHAKE": 
-				this.animator.SetBool("F_HeadShake", isActive); 
-				break;
-			case "HEADSHAKETHINK": 
-				this.animator.SetBool("F_HeadShakeThink", isActive); 
-				break;
+            case "ACKNOWLEDGE":
+                this.animator.SetBool("F_Acknowledge", isActive);
+                break;
+            case "HEADNOD":
+                this.animator.SetBool("F_HeadNod", isActive);
+                break;
+            case "LOOKAWAY":
+                this.animator.SetBool("F_LookAway", isActive);
+                break;
+            case "HEADSHAKE":
+                this.animator.SetBool("F_HeadShake", isActive);
+                break;
+            case "HEADSHAKETHINK":
+                this.animator.SetBool("F_HeadShakeThink", isActive);
+                break;
         }
     }
 
@@ -231,54 +231,54 @@ public class BodyMecanim : MonoBehaviour
 
         switch (gestureName.ToUpper())
         {
-            case "APPLEPICK": 
-                this.animator.SetBool("H_ApplePick", isActive); 
+            case "APPLEPICK":
+                this.animator.SetBool("H_ApplePick", isActive);
                 break;
-            case "CHEER": 
-                this.animator.SetBool("H_Cheer", isActive); 
+            case "CHEER":
+                this.animator.SetBool("H_Cheer", isActive);
                 break;
-            case "COWBOY": 
-                this.animator.SetBool("H_CowBoy", isActive); 
+            case "COWBOY":
+                this.animator.SetBool("H_CowBoy", isActive);
                 break;
-            case "WOODCUT": 
-                this.animator.SetBool("H_WoodCut", isActive); 
+            case "WOODCUT":
+                this.animator.SetBool("H_WoodCut", isActive);
                 break;
-            case "FISHING": 
-                this.animator.SetBool("H_Fishing", isActive); 
+            case "FISHING":
+                this.animator.SetBool("H_Fishing", isActive);
                 break;
-            case "CROWDPUMP": 
-                this.animator.SetBool("H_CrowdPump", isActive); 
+            case "CROWDPUMP":
+                this.animator.SetBool("H_CrowdPump", isActive);
                 break;
-            case "POINTING": 
-                this.animator.SetBool("H_Pointing", isActive); 
+            case "POINTING":
+                this.animator.SetBool("H_Pointing", isActive);
                 break;
-            case "WONDERFUL": 
-                this.animator.SetBool("H_Wonderful", isActive); 
+            case "WONDERFUL":
+                this.animator.SetBool("H_Wonderful", isActive);
                 break;
-            case "CUTTHROAT": 
-                this.animator.SetBool("H_CutThroat", isActive); 
+            case "CUTTHROAT":
+                this.animator.SetBool("H_CutThroat", isActive);
                 break;
             case "REACHRIGHT":
                 this.animator.SetBool("H_ReachRight", isActive);
                 break;
-			case "LOOKUP":
-				this.animator.SetBool("H_LookUp", isActive);
-				break;
-			case "HANDSUP":
-				this.animator.SetBool("H_HandsUp", isActive);
-				break;
+            case "LOOKUP":
+                this.animator.SetBool("H_LookUp", isActive);
+                break;
+            case "HANDSUP":
+                this.animator.SetBool("H_HandsUp", isActive);
+                break;
             case "SATNIGHTFEVER":
                 this.animator.SetBool("H_SatNightFever", isActive);
                 break;
             case "CHESTPUMPSALUTE":
                 this.animator.SetBool("H_ChestPumpSalute", isActive);
                 break;
-			case "BLOCKWAY":
-				this.animator.SetBool("H_BlockWay", isActive);
-				break;
-			case "BEINGCOCKY":
-				this.animator.SetBool("H_BeingCocky", isActive);
-				break;
+            case "BLOCKWAY":
+                this.animator.SetBool("H_BlockWay", isActive);
+                break;
+            case "BEINGCOCKY":
+                this.animator.SetBool("H_BeingCocky", isActive);
+                break;
             case "CRY":
                 if (isActive)
                     this.animator.SetTrigger("H_Cry");
@@ -356,44 +356,44 @@ public class BodyMecanim : MonoBehaviour
     /// Commands for body animations.
     /// </summary>
 	public void BodyAnimation(string gestureName, bool isActive)
-	{
-		
-		if (isActive == true)
-			this.ResetAnimation();
+    {
 
-		switch (gestureName.ToUpper())
-		{
-		case "BREAKDANCE": 
-			this.animator.SetBool("B_Breakdance", isActive); 
-			break;
-		case "FIGHT": 
-			this.animator.SetBool("B_Idle_Fight", isActive); 
-			break;
-		case "STEPBACK": 
-            if (isActive)
-			    this.animator.SetTrigger("B_StepBackTrigger");
-			break;
-        case "PICKUPRIGHT":
-            if (isActive)
-                this.animator.SetTrigger("B_PickupRight");
-            break;
-        case "PICKUPLEFT":
-            if (isActive)
-                this.animator.SetTrigger("B_PickupLeft");
-            break;
-        case "TALKING ON PHONE":
-            if (isActive)
-                this.animator.SetTrigger("B_Talking_On_Phone");
-            break;
-        case "DYING":
-            if (isActive)
-                this.animator.SetTrigger("B_Dying");
-            break;
-        case "DUCK":
-            this.animator.SetBool("B_Duck", isActive);
-            break;
-		}
-	}
+        if (isActive == true)
+            this.ResetAnimation();
+
+        switch (gestureName.ToUpper())
+        {
+            case "BREAKDANCE":
+                this.animator.SetBool("B_Breakdance", isActive);
+                break;
+            case "FIGHT":
+                this.animator.SetBool("B_Idle_Fight", isActive);
+                break;
+            case "STEPBACK":
+                if (isActive)
+                    this.animator.SetTrigger("B_StepBackTrigger");
+                break;
+            case "PICKUPRIGHT":
+                if (isActive)
+                    this.animator.SetTrigger("B_PickupRight");
+                break;
+            case "PICKUPLEFT":
+                if (isActive)
+                    this.animator.SetTrigger("B_PickupLeft");
+                break;
+            case "TALKING ON PHONE":
+                if (isActive)
+                    this.animator.SetTrigger("B_Talking_On_Phone");
+                break;
+            case "DYING":
+                if (isActive)
+                    this.animator.SetTrigger("B_Dying");
+                break;
+            case "DUCK":
+                this.animator.SetBool("B_Duck", isActive);
+                break;
+        }
+    }
 
     /// <summary>
     /// Resets all currently running animations
@@ -417,7 +417,7 @@ public class BodyMecanim : MonoBehaviour
         this.animator.SetBool("H_WoodCut", false);
         this.animator.SetBool("H_CutThroat", false);
         this.animator.SetBool("H_ReachRight", false);
-		this.animator.SetBool ("H_LookUp", false);
+        this.animator.SetBool("H_LookUp", false);
 
         this.animator.SetBool("FaceAnimation", false);
         this.animator.SetBool("HandAnimation", false);
@@ -432,7 +432,7 @@ public class BodyMecanim : MonoBehaviour
     /// </summary>
     public void SitDown()
     {
-		this.animator.SetBool ("B_Sitting", true);
+        this.animator.SetBool("B_Sitting", true);
     }
 
     /// <summary>
@@ -442,16 +442,16 @@ public class BodyMecanim : MonoBehaviour
     /// </summary>
     public void StandUp()
     {
-		this.animator.SetBool ("B_Sitting", false);
+        this.animator.SetBool("B_Sitting", false);
 
-	}
-	
-	/// <summary>
+    }
+
+    /// <summary>
     /// Returns true if and only if the character is definitely sitting.
     /// </summary>
     public bool IsSitting()
     {
-		return this.animator.GetBool ("B_Sitting");
+        return this.animator.GetBool("B_Sitting");
     }
 
     /// <summary>
@@ -459,8 +459,8 @@ public class BodyMecanim : MonoBehaviour
     /// </summary>
     public bool IsStanding()
     {
-		return !this.animator.GetBool ("B_Sitting");
-	}
+        return !this.animator.GetBool("B_Sitting");
+    }
     #endregion
 
     #region Navigation Commands

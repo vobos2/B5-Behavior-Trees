@@ -5,6 +5,7 @@ using UnityEngine;
 public class DynamicWallAnimation : MonoBehaviour
 {
     // Use this for initialization
+    public GameObject door;
     void Start()
     {
 
@@ -18,14 +19,14 @@ public class DynamicWallAnimation : MonoBehaviour
 
     public void triggerDoor()
     {
-        if (transform.position.y == 2.5f)
+        if (door.transform.position.y == 2.5f)
         {
-            transform.position += new Vector3(0, 3f, 0);
+            door.transform.position += new Vector3(0, 3f, 0);
         }
-        else if (transform.position.y == 5.5f)
+      /*  else if (transform.position.y == 5.5f)
         {
-            transform.position -= new Vector3(0, 3f, 0);
-        }
+            door.transform.position -= new Vector3(0, 3f, 0);
+        }*/
 
     }
 

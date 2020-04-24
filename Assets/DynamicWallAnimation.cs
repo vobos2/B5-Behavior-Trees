@@ -6,29 +6,46 @@ public class DynamicWallAnimation : MonoBehaviour
 {
     // Use this for initialization
     public GameObject door;
+    public bool doorUp;
     void Start()
     {
-
+        doorUp = false;
     }
 
     // Update is called once per frame
     void Update()
     {
-
     }
-
     public void triggerDoor()
     {
-        if (door.transform.position.y == 2.5f)
-        {
-            door.transform.position += new Vector3(0, 3f, 0);
-        }
-      /*  else if (transform.position.y == 5.5f)
-        {
-            door.transform.position -= new Vector3(0, 3f, 0);
-        }*/
 
     }
+    public void opendoor()
+    {
+        if (!doorUp)
+        {
+            /* door.transform.Translate(door.transform.position + new Vector3(0, 2.5f, 0));
+             doorUp = true;*/
+            door.SetActive(false);
+        }
+    }
+    public void closedoor()
+    {
+        if (doorUp)
+        {
+            door.transform.Translate(door.transform.position - new Vector3(0, 2.5f, 0));
+            doorUp = false;
+        }
+    }
 
-
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("goodGuy"))
+            opendoor();
+    }
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("goodGuy"))
+            closedoor();
+    }
 }

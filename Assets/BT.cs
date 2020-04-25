@@ -4,6 +4,7 @@ using UnityEngine;
 using TreeSharpPlus;
 using RootMotion.FinalIK;
 using System;
+using System.Linq;
 
 public class BT : MonoBehaviour
 {
@@ -109,6 +110,7 @@ public class BT : MonoBehaviour
     #region Kick affordance
     public Node Kick(GameObject p, GameObject p2)
     {
+
         return new Sequence(
                                 p2.GetComponent<BehaviorMecanim>().Node_BodyAnimation("DUCK", true),
                                 p.GetComponent<BehaviorMecanim>().Node_BodyAnimation("FIGHT", true),
@@ -179,22 +181,33 @@ public class BT : MonoBehaviour
         return seq;
     }
 
-    public Node Node_TriggerBad()
-    {
-
-        return new LeafInvoke(() => this.TriggerBad());
-    }
-    public virtual RunStatus TriggerBad()
-    {
-        // DynamicWallAnimation animate = door.GetComponent<DynamicWallAnimation>();
-
-
-
-        return RunStatus.Success;
-    }
 
     #endregion
 
+    #region Normal Fight
+    protected Node Fight()
+    {
+        var seq = new Sequence();
+        var zip = goodGuys.Zip(badGuys, (g, b) => (g, b));
+        foreach (var (g, b) in zip)
+        {
+            seq.Children.Add(Kick(g, b));
+        }
+
+        return new SequenceShuffle(seq);
+    }
+    protected Node WalkToEnemy()
+    {
+        var seqWalkToEnemy = new SequenceParallel();
+        var zip = goodGuys.Zip(badGuys, (g, b) => (g, b));
+        foreach (var (g, b) in zip)
+        {
+            Val<Vector3> pos = Val.V(() => b.transform.position);
+            seqWalkToEnemy.Children.Add(g.GetComponent<BehaviorMecanim>().Node_GoToUpToRadius(pos, 1.5f));
+        }
+        return seqWalkToEnemy;
+    }
+    #endregion
     protected Node ST_TurnTo(GameObject agent1, GameObject agent2)
     {
 
@@ -222,16 +235,19 @@ public class BT : MonoBehaviour
     protected Node BuildTreeRoot()
     {
         Node roaming = new Sequence(
-                        SendGoodGuysToTarget(meeting1.transform),
+                        WalkToEnemy(),
+                        Fight(),
+                        /* SendGoodGuysToTarget(meeting1.transform),*/
                         new LeafWait(1000),
-                        PressButton(goodGuys[0], ikButton2)
-                       /* SendGoodGuysToTarget(meeting2.transform),
-                        new LeafWait(1000),
-                        SendGoodGuysToTarget(meeting3.transform),
-                        new LeafWait(1000),
-                        SendGoodGuysToTarget(meeting4.transform),
-                        new LeafWait(1000),
-                        SendGoodGuysToTarget(meeting5.transform)*/
+                        SendGoodGuysToTarget(meeting4.transform)
+                         /*PressButton(goodGuys[0], ikButton2)*/
+                         /* SendGoodGuysToTarget(meeting2.transform),
+                          new LeafWait(1000),
+                          SendGoodGuysToTarget(meeting3.transform),
+                          new LeafWait(1000),
+                          SendGoodGuysToTarget(meeting4.transform),
+                          new LeafWait(1000),
+                          SendGoodGuysToTarget(meeting5.transform)*/
                          );
         /*      Node roaming = new DecoratorLoop(new Sequence(
                   PickUpPhone(goodGuys[0], ikLoot)));*/
@@ -243,8 +259,5 @@ public class BT : MonoBehaviour
         //new Sequence(this.PickUp(participant), this.Throw(participant, participant2)));
         return roaming;
     }
-    private void OnTriggerEnter(Collider other)
-    {
-        //make path over water appear
-    }
+
 }

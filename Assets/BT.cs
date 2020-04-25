@@ -5,7 +5,7 @@ using TreeSharpPlus;
 using RootMotion.FinalIK;
 using System;
 
-public class NonIK : MonoBehaviour
+public class BT : MonoBehaviour
 {
     private GameObject leader;
     private GameObject[] goodGuys;
@@ -15,9 +15,10 @@ public class NonIK : MonoBehaviour
     //IK related interface
     public FullBodyBipedEffector leftHand;
     public FullBodyBipedEffector rightHand;
-    public GameObject button, button2;
+    public GameObject button, button2, loot;
     public InteractionObject ikButton;
     public InteractionObject ikButton2;
+    public InteractionObject ikLoot;
     private BehaviorAgent behaviorAgent;
     // Use this for initialization
     void Start()
@@ -47,7 +48,7 @@ public class NonIK : MonoBehaviour
             return goodGuys[choose];
         }*/
 
-    #region Ball Affordance
+    #region Loot Affordance
     /*    protected Node PutDown(GameObject p)
 {
     return new Sequence(p.GetComponent<BehaviorMecanim>().Node_StartInteraction(hand, ikBall),
@@ -56,50 +57,54 @@ public class NonIK : MonoBehaviour
                         new LeafWait(500), p.GetComponent<BehaviorMecanim>().Node_StopInteraction(hand));
 }*/
 
-    /*   protected Node PickUp(GameObject p)
-       {
-           return new Sequence(this.Node_BallStop(),
-                               p.GetComponent<BehaviorMecanim>().Node_StartInteraction(hand, ikBall),
-                               new LeafWait(1000),
-                               p.GetComponent<BehaviorMecanim>().Node_StopInteraction(hand));
-       }*/
+    protected Node PickUpPhone(GameObject p, InteractionObject obj)
+    {
+        return new Sequence(
+                            this.Node_StopMoving(loot),
+                            this.Node_RotatePhone(),
+                            p.GetComponent<BehaviorMecanim>().Node_StartInteraction(rightHand, obj),
+                            p.GetComponent<BehaviorMecanim>().ST_PlayBodyGesture("TALKING ON PHONE", 5000),
+                            p.GetComponent<BehaviorMecanim>().Node_StopInteraction(rightHand));
+    }
+    protected Node Node_RotatePhone()
+    {
+        return new LeafInvoke(() => this.RotatePhone());
+    }
+    public virtual RunStatus RotatePhone()
+    {
+        var obj = GameObject.FindGameObjectWithTag("loot");
+        var pos = new Vector3(-0.129f, 0f, -0.057f);
 
-    /*    public Node Node_BallStop()
-        {
-            return new LeafInvoke(() => this.BallStop());
-        }
-        public virtual RunStatus BallStop()
-        {
-            Rigidbody rb = button.GetComponent<Rigidbody>();
-            rb.velocity = Vector3.zero;
-            rb.isKinematic = true;
+        obj.transform.localPosition = pos;
 
-            return RunStatus.Success;
-        }
-        public Node Node_BallThrow()
-        {
-            return new LeafInvoke(() => this.BallThrow());
-        }
-        public Node Node_BallMotion()
-        {
-            return new LeafInvoke(() => this.BallMotion());
-        }
-        public virtual RunStatus BallThrow()
-        {
-            Rigidbody rb = ball.GetComponent<Rigidbody>();
-            rb.isKinematic = true;
-            ball.transform.parent = null;
-            rb.velocity = Vector3.forward;
-            return RunStatus.Success;
-        }
-        public virtual RunStatus BallMotion()
-        {
-            Rigidbody rb = ball.GetComponent<Rigidbody>();
-            rb.velocity = Vector3.zero;
-            rb.isKinematic = false;
-            ball.transform.parent = null;
-            return RunStatus.Success;
-        }*/
+        return RunStatus.Success;
+    }
+
+    public Node Node_StopMoving(GameObject obj)
+    {
+        return new LeafInvoke(() => this.StopMoving(obj));
+    }
+    public virtual RunStatus StopMoving(GameObject obj)
+    {
+        Rigidbody rb = obj.GetComponent<Rigidbody>();
+        rb.velocity = Vector3.zero;
+        rb.isKinematic = true;
+
+        return RunStatus.Success;
+    }
+
+    public Node Node_ObjMotion(GameObject obj)
+    {
+        return new LeafInvoke(() => this.ObjMotion(obj));
+    }
+    public virtual RunStatus ObjMotion(GameObject obj)
+    {
+        Rigidbody rb = obj.GetComponent<Rigidbody>();
+        rb.velocity = Vector3.zero;
+        rb.isKinematic = false;
+        //obj.transform.parent = null;
+        return RunStatus.Success;
+    }
     #endregion
     #region Kick affordance
     public Node Kick(GameObject p, GameObject p2)
@@ -144,7 +149,7 @@ public class NonIK : MonoBehaviour
             return new Sequence(
                          p.GetComponent<BehaviorMecanim>().Node_StartInteraction(rightHand, ikButton2),
                          new LeafWait(1000),
-                         Node_TriggerBridge(),
+                         Node_KillAll(),
                          p.GetComponent<BehaviorMecanim>().Node_StopInteraction(rightHand));
         }
 
@@ -163,7 +168,33 @@ public class NonIK : MonoBehaviour
 
         return RunStatus.Success;
     }
+    public Node Node_KillAll()
+    {
+        var seq = new SequenceParallel();
+        foreach (var agent in goodGuys)
+        {
+            seq.Children.Add(agent.GetComponent<BehaviorMecanim>().Node_BodyAnimation("DYING", true));
+        }
+
+        return seq;
+    }
+
+    public Node Node_TriggerBad()
+    {
+
+        return new LeafInvoke(() => this.TriggerBad());
+    }
+    public virtual RunStatus TriggerBad()
+    {
+        // DynamicWallAnimation animate = door.GetComponent<DynamicWallAnimation>();
+
+
+
+        return RunStatus.Success;
+    }
+
     #endregion
+
     protected Node ST_TurnTo(GameObject agent1, GameObject agent2)
     {
 
@@ -193,15 +224,17 @@ public class NonIK : MonoBehaviour
         Node roaming = new Sequence(
                         SendGoodGuysToTarget(meeting1.transform),
                         new LeafWait(1000),
-                        PressButton(goodGuys[0], ikButton),
-                        SendGoodGuysToTarget(meeting2.transform),
+                        PressButton(goodGuys[0], ikButton2)
+                       /* SendGoodGuysToTarget(meeting2.transform),
                         new LeafWait(1000),
                         SendGoodGuysToTarget(meeting3.transform),
                         new LeafWait(1000),
                         SendGoodGuysToTarget(meeting4.transform),
                         new LeafWait(1000),
-                        SendGoodGuysToTarget(meeting5.transform)
+                        SendGoodGuysToTarget(meeting5.transform)*/
                          );
+        /*      Node roaming = new DecoratorLoop(new Sequence(
+                  PickUpPhone(goodGuys[0], ikLoot)));*/
         /* new DecoratorLoop(
              new Sequence(this.PickUp(participant), this.Throw(participant, participant2)))
          );*/

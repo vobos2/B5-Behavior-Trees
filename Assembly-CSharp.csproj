@@ -63,6 +63,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\BT.cs" />
     <Compile Include="Assets\CameraController.cs" />
     <Compile Include="Assets\Core\Libraries\RootMotion\FinalIK\_DEMOS\Aim IK\Scripts\AimBoxing.cs" />
     <Compile Include="Assets\Core\Libraries\RootMotion\FinalIK\_DEMOS\Aim IK\Scripts\CharacterControllerSimpleAim.cs" />
@@ -235,7 +236,6 @@
     <Compile Include="Assets\DynamicWallAnimation.cs" />
     <Compile Include="Assets\MyBehaviorTree.cs" />
     <Compile Include="Assets\MyBehaviorTree2.cs" />
-    <Compile Include="Assets\NonIK.cs" />
     <Reference Include="Unity.Timeline.Editor">
       <HintPath>C:/Users/Alex/Documents/UnityProjects/B5 - Behavior Trees/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
     </Reference>

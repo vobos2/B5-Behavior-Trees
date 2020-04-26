@@ -8,9 +8,14 @@ public class CameraController : MonoBehaviour
 
     private float lookSpeed, mouseX, mouseY;
     public float moveSpeed;
-
+    public float dist;
+    public float yAngleMin;
+    public float yAngleMax;
     void Start()
     {
+        dist = 7f;
+        yAngleMin = 20f;
+        yAngleMax = 50f;
         lookSpeed = 7.0f;
         mouseX = mouseY = 0.0f;
         moveSpeed = 10;
@@ -19,7 +24,25 @@ public class CameraController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Movement();
+        // Movement();
+
+        ThirdPerson(GameObject.FindGameObjectsWithTag("goodGuy")[0]);
+    }
+
+    private void ThirdPerson(GameObject target)
+    {
+        transform.eulerAngles = new Vector3(mouseY, mouseX, 0.0f);
+
+        Vector3 input = Quaternion.Euler(0, transform.eulerAngles.y, 0) * new Vector3(Input.GetAxis("Horizontal"), 0.0f, Input.GetAxis("Vertical"));
+
+        transform.position += input * Time.deltaTime * moveSpeed;
+
+        mouseY = Mathf.Clamp(mouseY, yAngleMin, yAngleMax);
+
+        Vector3 thirdPersonDist = new Vector3(14f, 10f, -4f);
+        Quaternion rotation = Quaternion.Euler(mouseY, mouseX, 0);
+        transform.position = target.transform.position + rotation * thirdPersonDist;
+        transform.LookAt(target.transform.position);
     }
     // Camera free-look, moves where camera is pointing
     private void Movement()

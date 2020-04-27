@@ -1,0 +1,31 @@
+Alexsandr Vobornov
+
+GIT: https://github.com/vobos2/B5-Behavior-Trees
+
+Video Demo: https://www.youtube.com/watch?v=y0S_RRG7CMc
+
+Notes: My partner said he would on it every day since 4/15, but I ended up doing the whole thing by myself which wasn't easy. I tried my best to implement all the affordances, but was short on time. 
+	Sorry, for some reason I was having trouble calling SequenceParallel after obtaining user input. Regular sequence still worked so that's why the characters move one after another instead of at the same time. 
+
+
+Documentation:
+
+	SendGoodGuysToTarget(target) - Sends all agents tagged "goodGuy" to target transform in parallel. Shuffles the children to randomize order.
+	SendToTarget1by1(target) - Sends all agents tagged "goodGuy" to target transform in sequence. ** See Notes ^^ ** 
+
+	Part1Arc() - Sends the good agents to the post with the buttons on it. Pressing 1 activates the bridge pressing 2 activates the trap.
+		-RetrieveUserInput() - Retrieves user input and sets the arc
+		-PressButton() - Triggers the bridge or triggers the trap buttons
+		
+
+	Part2Arc() - Sends the good agents to the fight scene, then causes them to fight.
+		-Fight() - causes n good agents and n bad agents to fight. Shuffles the sequence.
+		-Kick() - agent 1 kicks agent 2, agnet 2 dies
+		-WalkToEnemy() - causes n good agents to walk up to n bad agents in parallel.
+
+	Part3Arc() - Sends the good agents to obtain loot.
+		-PickUpPhone() - agent walks up and picks up phone obj
+		-FightBoss() - random agent picks up the phone. Boss dies.
+
+
+

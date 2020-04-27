@@ -24,15 +24,18 @@ public class BT : MonoBehaviour
     private BehaviorAgent behaviorAgent;
     private int userInput;
     private StoryArc currArc;
+    private bool buttonPressed;
     // Use this for initialization
     void Start()
     {
         currArc = StoryArc.MENU;
+        buttonPressed = false;
         goodGuys = GameObject.FindGameObjectsWithTag("goodGuy");
-        Debug.Log(goodGuys);
+        leader = findLeader();
+
         badGuys = GameObject.FindGameObjectsWithTag("badGuy");
         boss = GameObject.FindGameObjectWithTag("boss");
-        //leader = FindLeader();
+
         bridge = GameObject.FindGameObjectWithTag("bridge");
         bridge.SetActive(false);
 
@@ -48,23 +51,24 @@ public class BT : MonoBehaviour
         GAMEOVER = 2
 
     }
-    /*    private GameObject FindLeader()
-        {
-            *//*
-             *  NEED TO ATTACH CONTROLS TO THIS CHARACTER SO THE USER CAN PICK.
-             *//*
-
-            //Randomly selects leader for the group 
-            var len = goodGuys.Length;
-            var choose = Mathf.RoundToInt(UnityEngine.Random.value * len);
-            print(choose);
-            return goodGuys[choose];
-        }*/
+    private GameObject findLeader()
+    {
+        var index = UnityEngine.Random.Range(0, goodGuys.Length);
+        return goodGuys[index];
+    }
     #region Fight Boss
     protected Node FightBoss(GameObject p, InteractionObject obj)
     {
         return new Sequence(
             PickUpPhone(p, obj),
+            ST_TurnTo(boss, goodGuys[0]),
+             boss.GetComponent<BehaviorMecanim>().Node_HandAnimation("SURPRISED", true),
+             new LeafWait(2000),
+              boss.GetComponent<BehaviorMecanim>().Node_HandAnimation("SURPRISED", false),
+              boss.GetComponent<BehaviorMecanim>().Node_HandAnimation("POINTING", true),
+                 new LeafWait(2000),
+                 boss.GetComponent<BehaviorMecanim>().Node_HandAnimation("POINTING", false),
+            boss.GetComponent<BehaviorMecanim>().Node_BodyAnimation("DYING", true),
             Node_ExplodeBoss(),
              new LeafWait(4000)
                             );
@@ -75,15 +79,15 @@ public class BT : MonoBehaviour
     }
     public virtual RunStatus ExplodeBoss()
     {
-        Val<Vector3> pos = Val.V(() => boss.transform.localPosition);
-
-        for (int i = 1; i <= 10; i++)
-        {
-            Debug.Log(boss.transform.localPosition.y);
-            boss.transform.position += new Vector3(0, i, 0);
-            /*boss.transform.localScale += boss.transform.localScale * Time.deltaTime * i;
-            boss.transform.position += new Vector3(0, pos.Value.y * i * Time.deltaTime, 0);*/
-        }
+        Val<Vector3> scale = Val.V(() => boss.transform.localScale);
+        /*
+                for (int i = 1; i <= 1000; i++)
+                {
+                    boss.gameObject.transform.localScale = new Vector3(i, i, i);
+                    *//*boss.transform.localScale += boss.transform.localScale * Time.deltaTime * i;
+                    boss.transform.position += new Vector3(0, pos.Value.y * i * Time.deltaTime, 0);*//*
+                }*/
+        //boss.SetActive(false);
         return RunStatus.Success;
     }
     #endregion
@@ -99,7 +103,7 @@ public class BT : MonoBehaviour
     protected Node PickUpPhone(GameObject p, InteractionObject obj)
     {
         return new Sequence(
-                            ST_ApproachAndWait(p, loot.transform),
+                            ST_ApproachAndWait(p, loot.transform, 1.5f),
                             this.Node_StopMoving(loot),
                             this.Node_RotatePhone(),
                             p.GetComponent<BehaviorMecanim>().Node_StartInteraction(rightHand, obj),
@@ -173,26 +177,35 @@ public class BT : MonoBehaviour
     #endregion
     #region Button Affordance
 
-    public Node PressButton(GameObject p, InteractionObject button)
+    public Node PressButton(GameObject p, InteractionObject b)
     {
+        Val<InteractionObject> but = Val.V(() => b);
+        var seq = new Sequence();
 
-
-        if (button == ikButton)
+        if (but.Value == ikButton)
         {
-            return new Sequence(
+            //print("here1");
+            buttonPressed = true;
+            seq = new Sequence(
                          p.GetComponent<BehaviorMecanim>().Node_StartInteraction(leftHand, ikButton),
                          new LeafWait(1000),
                          Node_TriggerBridge(),
-                         p.GetComponent<BehaviorMecanim>().Node_StopInteraction(leftHand));
+                         p.GetComponent<BehaviorMecanim>().Node_StopInteraction(leftHand)
+                         );
         }
-        else
+
+        if (but.Value == ikButton2)
         {
-            return new Sequence(
+            buttonPressed = true;
+            // print("here2");
+            seq = new Sequence(
                          p.GetComponent<BehaviorMecanim>().Node_StartInteraction(rightHand, ikButton2),
                          new LeafWait(1000),
-                         Node_KillAll(),
+                        Node_KillAll(),
                          p.GetComponent<BehaviorMecanim>().Node_StopInteraction(rightHand));
         }
+
+        return seq;
 
 
     }
@@ -211,7 +224,7 @@ public class BT : MonoBehaviour
     }
     public Node Node_KillAll()
     {
-        var seq = new SequenceParallel();
+        var seq = new Sequence();
         foreach (var agent in goodGuys)
         {
             seq.Children.Add(agent.GetComponent<BehaviorMecanim>().Node_BodyAnimation("DYING", true));
@@ -220,80 +233,6 @@ public class BT : MonoBehaviour
         return seq;
     }
 
-
-    #endregion
-    #region User Input
-
-    private Node MenuArc()
-    {
-        return new Sequence(
-            CheckMenuArc(),
-            new LeafInvoke(() => print("Please Choose button 1 or button 2")),
-            RetrieveUserInput());
-    }
-    private Node Button1Arc(GameObject p)
-    {
-        return new Sequence(
-            CheckButton1Arc(),
-            new LeafInvoke(() => print(currArc)),
-            RetrieveUserInput());
-            //PressButton(p, ikButton));
-    }
-    private Node Button2Arc(GameObject p)
-    {
-        return new Sequence(
-           CheckButton2Arc(),
-           new LeafInvoke(() => print(currArc)),
-           RetrieveUserInput());
-           //PressButton(p, ikButton2));
-    }
-    private Node CheckButton1Arc()
-    {
-        return new LeafAssert(() => (StoryArc)userInput == StoryArc.BRIDGE);
-    }
-    private Node CheckButton2Arc()
-    {
-        return new LeafAssert(() => (StoryArc)userInput == StoryArc.GAMEOVER);
-    }
-    private Node CheckMenuArc()
-    {
-        return new LeafAssert(() => (StoryArc)userInput == StoryArc.MENU);
-    }
-    private Node RetrieveUserInput()
-    {
-        return new DecoratorInvert(
-                        new DecoratorLoop(
-                            new Sequence(
-                                new LeafInvoke(
-                                    () =>
-                                    {
-                                        var input = -1;
-/*                                        if (Input.GetKey("0"))
-                                            input = 0;*/
-                                        if (Input.GetKey("1"))
-                                            input = 1;
-                                        if (Input.GetKey("2"))
-                                            input = 2;
-
-                                        if (input > 0 && input < 3)
-                                        {
-                                            userInput = input;
-                                            currArc = (StoryArc)userInput;
-                                            return RunStatus.Failure;
-                                        }
-                                        else
-                                        {
-                                            return RunStatus.Running;
-                                        }
-
-
-                                    }
-                                 ),
-                                new LeafInvoke(() => print("Waiting.."))
-                              )
-                          )
-                    );
-    }
 
     #endregion
     #region Normal Fight
@@ -310,7 +249,7 @@ public class BT : MonoBehaviour
     }
     protected Node WalkToEnemy()
     {
-        var seqWalkToEnemy = new SequenceParallel();
+        var seqWalkToEnemy = new Sequence();
         var zip = goodGuys.Zip(badGuys, (g, b) => (g, b));
         foreach (var (g, b) in zip)
         {
@@ -320,41 +259,155 @@ public class BT : MonoBehaviour
         return seqWalkToEnemy;
     }
     #endregion
+    #region Navigation
     protected Node ST_TurnTo(GameObject agent1, GameObject agent2)
     {
 
         return new Sequence(agent1.GetComponent<BehaviorMecanim>().ST_TurnToFace(new Val<Vector3>(() => agent2.transform.position)));
     }
 
-
-
-    protected Node ST_ApproachAndWait(GameObject p, Transform target)
+    protected Node ST_ApproachAndWait(GameObject p, Transform target, float radius = 1f)
     {
         Val<Vector3> positionGoal = Val.V(() => target.position);
-        return new Sequence(p.GetComponent<BehaviorMecanim>().Node_GoToUpToRadius(positionGoal, 1f), new LeafWait(1000), p.GetComponent<BehaviorMecanim>().ST_TurnToFace(positionGoal));
+        return new Sequence(p.GetComponent<BehaviorMecanim>().Node_GoToUpToRadius(positionGoal, radius));
+    }
+    protected Node SendToTarget1by1(Transform target)
+    {
+        var seq = new Sequence();
+        foreach (var agent in goodGuys)
+        {
+            seq.Children.Add(ST_ApproachAndWait(agent, target));
+        }
+
+        return seq;
     }
     protected Node SendGoodGuysToTarget(Transform target)
     {
         var seq = new SequenceParallel();
         foreach (var agent in goodGuys)
         {
-            seq.Children.Add(ST_ApproachAndWait(agent, target.transform));
+            seq.Children.Add(ST_ApproachAndWait(agent, target));
         }
 
-        return new SequenceShuffle(seq);
+        return seq;
+    }
+    public virtual RunStatus sendToTarget(Transform target)
+    {
+        SendGoodGuysToTarget(target);
+        return RunStatus.Success;
+    }
+    #endregion
+    #region User Input
+
+    private Node MenuArc()
+    {
+        return new Sequence(
+            CheckMenuArc(),
+            new LeafInvoke(() => print("Please Choose button 1 or button 2 when the first character approaches the post")));
+        //RetrieveUserInput());
+    }
+    private Node Button1Arc(GameObject p)
+    {
+        return new Sequence(
+            CheckButton1Arc(),
+            PressButton(p, ikButton),
+            new LeafInvoke(() => print("Moving to part 2")),
+            SendToTarget1by1(meeting2.transform),
+              part2Arc(),
+              part3Arc()
+            );
+    }
+    private Node Button2Arc(GameObject p)
+    {
+
+        return new Sequence(
+            CheckButton2Arc(),
+            PressButton(p, ikButton2),
+            new LeafInvoke(() => print("They died.")),
+            new LeafWait(10000)
+            //SendGoodGuysToTarget(meeting3.transform)
+            );
+
+    }
+    private Node CheckButton1Arc()
+    {
+        return new LeafAssert(() => (StoryArc)userInput == StoryArc.BRIDGE);
+    }
+    private Node CheckButton2Arc()
+    {
+        return new LeafAssert(() => (StoryArc)userInput == StoryArc.GAMEOVER);
+    }
+    private Node CheckMenuArc()
+    {
+        return new LeafAssert(() => (StoryArc)userInput == StoryArc.MENU);
+    }
+    private Node RetrieveUserInput()
+    {
+        return new DecoratorInvert(
+                              new DecoratorLoop(
+                                      new LeafInvoke(
+                                          () =>
+                                          {
+                                              var input = -1;
+
+                                              if (Input.GetKey("1"))
+                                                  input = 1;
+                                              if (Input.GetKey("2"))
+                                                  input = 2;
+
+                                              if (input > 0 && input < 3)
+                                              {
+                                                  userInput = input;
+                                                  currArc = (StoryArc)userInput;
+                                                  return RunStatus.Failure;
+                                              }
+                                              else
+                                              {
+                                                  return RunStatus.Running;
+                                              }
+                                          }
+                                       )
+
+                                )
+                          );
     }
 
-    protected Node BuildTreeRoot()
+    #endregion
+    protected Node part1Arc()
     {
-        Node roaming = new DecoratorLoop(
+
+        Node usrIn = new DecoratorLoop(
             new SequenceParallel(
                 new SelectorParallel(
                     MenuArc(),
                     Button1Arc(goodGuys[0]),
                     Button2Arc(goodGuys[0])
                 ),
-                RetrieveUserInput()
-            ));
+                RetrieveUserInput()));
+
+
+
+        return usrIn;
+    }
+    protected Node part2Arc()
+    {
+        return new Sequence(
+           WalkToEnemy(), Fight(), SendToTarget1by1(meeting5.transform));
+    }
+    protected Node part3Arc()
+    {
+        return new Sequence(FightBoss(goodGuys[0], ikLoot), new LeafWait(10000));
+    }
+
+    protected Node BuildTreeRoot()
+    {
+
+        return new Sequence(
+            new SequenceParallel(SendGoodGuysToTarget(meeting1.transform), part1Arc())
+            );
+
+
+
         /* Node roaming = new Sequence(
                          *//*WalkToEnemy(),
                          Fight(),*//*
@@ -379,7 +432,8 @@ public class BT : MonoBehaviour
         /*    new DecoratorLoop(
                  new Sequence(this.Kick(participant, participant2), new LeafWait(2000))));*/
         //new Sequence(this.PickUp(participant), this.Throw(participant, participant2)));
-        return roaming;
-    }
 
+
+
+    }
 }
